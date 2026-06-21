@@ -1,0 +1,83 @@
+export const COLORS = {
+  primary: '#0062FF',
+  background: '#FAFBFC',
+  surface: '#FFFFFF',
+  border: '#E2E4EC',
+  textPrimary: '#0A1640',
+  textSecondary: '#7A829A',
+  textPlaceholder: '#A0A5BD',
+  facebook: '#1877F2',
+};
+
+export const GLOBAL_STYLES = {
+  screenWrapper: {
+    alignItems: 'center',
+    width: '100%',
+  },
+  illustrationPlaceholder: {
+    width: 200,
+    height: 180,
+    backgroundColor: '#EBF2FF',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  placeholderText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: COLORS.textPrimary,
+    marginBottom: 8,
+  },
+  inputContainer: {
+    width: '100%',
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    height: 56,
+    justifyContent: 'center',
+    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.02)',
+  },
+  input: {
+    fontSize: 15,
+    color: COLORS.textPrimary,
+  },
+  primaryButton: {
+    backgroundColor: COLORS.primary,
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    boxShadow: '0px 4px 8px 0px rgba(0, 98, 255, 0.2)',
+  },
+  primaryButtonText: {
+    color: COLORS.surface,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+  },
+  footerLinkText: {
+    fontSize: 14,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+};

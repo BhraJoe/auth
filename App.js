@@ -1,20 +1,125 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
+  View,
+  Text,
+} from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+
+import SignInScreen from './src/screens/SignInScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+import ForgetPasswordScreen from './src/screens/ForgetPasswordScreen';
+import DashboardScreen from './src/screens/DashboardScreen';
+import { AuthService } from './src/services/authService';
+import { COLORS } from './src/constants/theme';
 
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState('SIGN_IN');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check storage on mount for active JWT session
+  useEffect(() => {
+    async function initializeSession() {
+      try {
+        const session = await AuthService.checkSession();
+        if (session.isAuthenticated) {
+          setUser(session.user);
+          setToken(session.token);
+          setIsAuthenticated(true);
+        }
+      } catch (e) {
+        console.error('Error restoring session:', e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    initializeSession();
+  }, []);
+
+  const handleLoginSuccess = (userData, sessionToken) => {
+    setUser(userData);
+    setToken(sessionToken);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = async () => {
+    await AuthService.logout();
+    setUser(null);
+    setToken('');
+    setIsAuthenticated(false);
+    setCurrentScreen('SIGN_IN');
+  };
+
+  const renderScreen = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+          <Text style={styles.loadingText}>Verifying session...</Text>
+        </View>
+      );
+    }
+
+    if (isAuthenticated) {
+      return <DashboardScreen user={user} onLogout={handleLogout} />;
+    }
+
+    switch (currentScreen) {
+      case 'SIGN_IN':
+        return <SignInScreen onNavigate={setCurrentScreen} onLoginSuccess={handleLoginSuccess} />;
+      case 'SIGN_UP':
+        return <SignUpScreen onNavigate={setCurrentScreen} />;
+      case 'FORGET_PASSWORD':
+        return <ForgetPasswordScreen onNavigate={setCurrentScreen} />;
+      default:
+        return <SignInScreen onNavigate={setCurrentScreen} onLoginSuccess={handleLoginSuccess} />;
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            {renderScreen()}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
+    backgroundColor: COLORS.background,
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 40,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontWeight: '500',
   },
 });
