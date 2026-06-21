@@ -62,7 +62,6 @@ export default function SignUpScreen({ onNavigate }) {
       <Text style={GLOBAL_STYLES.title}>Sign Up</Text>
       <Text style={styles.subtitle}>Use proper information to continue</Text>
 
-      {/* Full Name Input with Vector Icon */}
       <View style={styles.inputLayoutRow}>
         <Feather name="user" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
         <TextInput
