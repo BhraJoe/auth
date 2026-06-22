@@ -4,6 +4,7 @@ import { FontAwesome, Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { SignInIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
+import { validateSignIn } from '../utils/validation';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 const GoogleLogo = () => (
@@ -29,8 +30,13 @@ export default function SignInScreen({ onNavigate, onLoginSuccess }) {
     setError('');
     setSuccess('');
 
-    if (!username.trim() || !password) {
-      setError('Please enter both username/email and password.');
+    const validation = validateSignIn({
+      username: username.trim(),
+      password,
+    });
+
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 

@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { SignUpIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
+import { validateSignUp } from '../utils/validation';
 
 export default function SignUpScreen({ onNavigate }) {
   const [fullName, setFullName] = useState('');
@@ -19,19 +20,14 @@ export default function SignUpScreen({ onNavigate }) {
     setError('');
     setSuccess('');
 
-    if (!fullName.trim() || !email.trim() || !password) {
-      setError('Please fill in all fields.');
-      return;
-    }
+    const validation = validateSignUp({
+      fullName,
+      email: email.trim(),
+      password,
+    });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email address.');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 6 characters.');
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 

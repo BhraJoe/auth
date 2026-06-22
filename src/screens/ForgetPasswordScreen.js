@@ -4,6 +4,7 @@ import { Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { ForgotPasswordIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
+import { validateForgotPassword } from '../utils/validation';
 
 export default function ForgetPasswordScreen({ onNavigate }) {
   const [email, setEmail] = useState('');
@@ -15,14 +16,12 @@ export default function ForgetPasswordScreen({ onNavigate }) {
     setError('');
     setSuccess('');
 
-    if (!email.trim()) {
-      setError('Please enter your email address.');
-      return;
-    }
+    const validation = validateForgotPassword({
+      email: email.trim(),
+    });
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      setError('Please enter a valid email address.');
+    if (!validation.valid) {
+      setError(validation.error);
       return;
     }
 
