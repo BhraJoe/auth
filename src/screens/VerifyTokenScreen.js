@@ -2,24 +2,27 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
-import { ForgotPasswordIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
-import { validateForgotPassword } from '../utils/validation';
+import { validateVerifyToken } from '../utils/validation';
 
-export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
-  const [email, setEmail] = useState('');
+export default function VerifyTokenScreen({ onNavigate, email }) {
+  const [token, setToken] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleResetPassword = async () => {
+  const handleVerifyToken = async () => {
     setError('');
     setSuccess('');
 
-    const validation = validateForgotPassword({
-      email: email.trim(),
-    });
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
 
+    const validation = validateVerifyToken({ token, newPassword });
     if (!validation.valid) {
       setError(validation.error);
       return;
@@ -27,13 +30,12 @@ export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
 
     setIsSubmitting(true);
     try {
-      const res = await AuthService.requestPasswordReset(email);
+      const res = await AuthService.verifyResetToken(email, token, newPassword);
       if (res.success) {
         setSuccess(res.message);
-        onSendResetEmail(email);
-        setTimeout(() => onNavigate('VERIFY_TOKEN'), 1500);
+        setTimeout(() => onNavigate('SIGN_IN'), 2000);
       } else {
-        setError(res.message || 'Failed to request password reset.');
+        setError(res.message || 'Failed to reset password.');
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
@@ -44,22 +46,47 @@ export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
 
   return (
     <View style={GLOBAL_STYLES.screenWrapper}>
-      <ForgotPasswordIllustration />
-
-      <Text style={GLOBAL_STYLES.title}>Forget Password</Text>
+      <Text style={GLOBAL_STYLES.title}>Reset Password</Text>
       <Text style={styles.subtitleCenter}>
-        Don't worry it happens. Please enter the address associate with your account
+        Enter the 6-digit code sent to {email} and choose a new password.
       </Text>
 
       <View style={styles.inputLayoutRow}>
-        <Feather name="mail" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+        <Feather name="key" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
         <TextInput
           style={GLOBAL_STYLES.input}
-          placeholder="Email address"
+          placeholder="Reset Code"
           placeholderTextColor={COLORS.textPlaceholder}
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
+          keyboardType="number-pad"
+          maxLength={6}
+          value={token}
+          onChangeText={setToken}
+          autoCapitalize="none"
+        />
+      </View>
+
+      <View style={styles.inputLayoutRow}>
+        <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+        <TextInput
+          style={GLOBAL_STYLES.input}
+          placeholder="New Password"
+          placeholderTextColor={COLORS.textPlaceholder}
+          secureTextEntry
+          value={newPassword}
+          onChangeText={setNewPassword}
+          autoCapitalize="none"
+        />
+      </View>
+
+      <View style={styles.inputLayoutRow}>
+        <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+        <TextInput
+          style={GLOBAL_STYLES.input}
+          placeholder="Confirm New Password"
+          placeholderTextColor={COLORS.textPlaceholder}
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
           autoCapitalize="none"
         />
       </View>
@@ -78,15 +105,15 @@ export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
         </View>
       ) : null}
 
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[GLOBAL_STYLES.primaryButton, isSubmitting && { opacity: 0.8 }]}
-        onPress={handleResetPassword}
+        onPress={handleVerifyToken}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <ActivityIndicator size="small" color="#FFFFFF" />
         ) : (
-          <Text style={GLOBAL_STYLES.primaryButtonText}>Send OTP</Text>
+          <Text style={GLOBAL_STYLES.primaryButtonText}>Reset Password</Text>
         )}
       </TouchableOpacity>
 

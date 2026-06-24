@@ -13,6 +13,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import ForgetPasswordScreen from './src/screens/ForgetPasswordScreen';
+import VerifyTokenScreen from './src/screens/VerifyTokenScreen';
 import DashboardScreen from './src/screens/DashboardScreen';
 import { AuthService } from './src/services/authService';
 import { COLORS } from './src/constants/theme';
@@ -22,6 +23,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [token, setToken] = useState('');
+  const [resetEmail, setResetEmail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
   // Check storage on mount for active JWT session
@@ -77,7 +79,9 @@ export default function App() {
       case 'SIGN_UP':
         return <SignUpScreen onNavigate={setCurrentScreen} />;
       case 'FORGET_PASSWORD':
-        return <ForgetPasswordScreen onNavigate={setCurrentScreen} />;
+        return <ForgetPasswordScreen onNavigate={setCurrentScreen} onSendResetEmail={setResetEmail} />;
+      case 'VERIFY_TOKEN':
+        return <VerifyTokenScreen onNavigate={setCurrentScreen} email={resetEmail} />;
       default:
         return <SignInScreen onNavigate={setCurrentScreen} onLoginSuccess={handleLoginSuccess} />;
     }
