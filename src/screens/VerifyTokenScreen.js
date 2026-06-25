@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator 
 import { Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { AuthService } from '../services/authService';
-import { validateVerifyToken } from '../utils/validation';
+import { validateVerifyToken, validateResetPassword } from '../utils/validation';
 
 export default function VerifyTokenScreen({ onNavigate, email }) {
   const [token, setToken] = useState('');
@@ -12,8 +12,35 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
 
   const handleVerifyToken = async () => {
+    setError('');
+    setSuccess('');
+
+    const validation = validateVerifyToken({ token });
+    if (!validation.valid) {
+      setError(validation.error);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const res = await AuthService.verifyToken(email, token);
+      if (res.success) {
+        setIsVerified(true);
+        setSuccess('Code verified! Enter a new password.');
+      } else {
+        setError(res.message || 'Invalid or expired code.');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
     setError('');
     setSuccess('');
 
@@ -22,7 +49,7 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
       return;
     }
 
-    const validation = validateVerifyToken({ token, newPassword });
+    const validation = validateResetPassword({ newPassword });
     if (!validation.valid) {
       setError(validation.error);
       return;
@@ -30,7 +57,7 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
 
     setIsSubmitting(true);
     try {
-      const res = await AuthService.verifyResetToken(email, token, newPassword);
+      const res = await AuthService.resetPassword(email, token, newPassword);
       if (res.success) {
         setSuccess(res.message);
         setTimeout(() => onNavigate('SIGN_IN'), 2000);
@@ -48,48 +75,57 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
     <View style={GLOBAL_STYLES.screenWrapper}>
       <Text style={GLOBAL_STYLES.title}>Reset Password</Text>
       <Text style={styles.subtitleCenter}>
-        Enter the 6-digit code sent to {email} and choose a new password.
+        {isVerified
+          ? 'Token verified! Now set a new password.'
+          : `Enter the 6-digit code sent to ${email}.`}
       </Text>
 
-      <View style={styles.inputLayoutRow}>
-        <Feather name="key" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
-        <TextInput
-          style={GLOBAL_STYLES.input}
-          placeholder="Reset Code"
-          placeholderTextColor={COLORS.textPlaceholder}
-          keyboardType="number-pad"
-          maxLength={6}
-          value={token}
-          onChangeText={setToken}
-          autoCapitalize="none"
-        />
-      </View>
+      {!isVerified && (
+        <View style={styles.inputLayoutRow}>
+          <Feather name="key" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+          <TextInput
+            style={GLOBAL_STYLES.input}
+            placeholder="Reset Code"
+            placeholderTextColor={COLORS.textPlaceholder}
+            keyboardType="number-pad"
+            maxLength={6}
+            value={token}
+            onChangeText={setToken}
+            editable={!isVerified}
+            autoCapitalize="none"
+          />
+        </View>
+      )}
 
-      <View style={styles.inputLayoutRow}>
-        <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
-        <TextInput
-          style={GLOBAL_STYLES.input}
-          placeholder="New Password"
-          placeholderTextColor={COLORS.textPlaceholder}
-          secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
-          autoCapitalize="none"
-        />
-      </View>
+      {isVerified && (
+        <>
+          <View style={styles.inputLayoutRow}>
+            <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+            <TextInput
+              style={GLOBAL_STYLES.input}
+              placeholder="New Password"
+              placeholderTextColor={COLORS.textPlaceholder}
+              secureTextEntry
+              value={newPassword}
+              onChangeText={setNewPassword}
+              autoCapitalize="none"
+            />
+          </View>
 
-      <View style={styles.inputLayoutRow}>
-        <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
-        <TextInput
-          style={GLOBAL_STYLES.input}
-          placeholder="Confirm New Password"
-          placeholderTextColor={COLORS.textPlaceholder}
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          autoCapitalize="none"
-        />
-      </View>
+          <View style={styles.inputLayoutRow}>
+            <Feather name="lock" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+            <TextInput
+              style={GLOBAL_STYLES.input}
+              placeholder="Confirm New Password"
+              placeholderTextColor={COLORS.textPlaceholder}
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              autoCapitalize="none"
+            />
+          </View>
+        </>
+      )}
 
       {error ? (
         <View style={styles.errorBanner}>
@@ -107,13 +143,13 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
 
       <TouchableOpacity
         style={[GLOBAL_STYLES.primaryButton, isSubmitting && { opacity: 0.8 }]}
-        onPress={handleVerifyToken}
+        onPress={isVerified ? handleResetPassword : handleVerifyToken}
         disabled={isSubmitting}
       >
         {isSubmitting ? (
           <ActivityIndicator size="small" color="#FFFFFF" />
         ) : (
-          <Text style={GLOBAL_STYLES.primaryButtonText}>Reset Password</Text>
+          <Text style={GLOBAL_STYLES.primaryButtonText}>{isVerified ? 'Reset Password' : 'Verify Code'}</Text>
         )}
       </TouchableOpacity>
 

@@ -33,11 +33,22 @@ export function validateSignIn(data) {
 
 export const verifyTokenSchema = z.object({
   token: z.string().min(1, 'Please enter the 6-digit code.'),
+});
+
+export const resetPasswordSchema = z.object({
   newPassword: z.string().min(8, 'Password must be at least 8 characters.'),
 });
 
 export function validateVerifyToken(data) {
   const result = verifyTokenSchema.safeParse(data);
+  if (!result.success) {
+    return { valid: false, error: result.error.issues[0].message };
+  }
+  return { valid: true };
+}
+
+export function validateResetPassword(data) {
+  const result = resetPasswordSchema.safeParse(data);
   if (!result.success) {
     return { valid: false, error: result.error.issues[0].message };
   }

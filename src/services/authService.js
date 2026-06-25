@@ -93,9 +93,23 @@ export const AuthService = {
     }
   },
 
-  async verifyResetToken(email, token, newPassword) {
+  async verifyToken(email, token) {
     try {
       const res = await fetch(`${API_URL}/verify-token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, token }),
+      });
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      return { success: false, message: 'Network error. Please try again.' };
+    }
+  },
+
+  async resetPassword(email, token, newPassword) {
+    try {
+      const res = await fetch(`${API_URL}/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, token, newPassword }),
