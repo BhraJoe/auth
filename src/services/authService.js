@@ -34,12 +34,12 @@ async function removeSession() {
 }
 
 export const AuthService = {
-  async register(username, fullName, email, password) {
+  async register(username, fullName, email, phone, password) {
     try {
       const res = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, fullName, email, password }),
+        body: JSON.stringify({ username, fullName, email, phone, password }),
       });
       const data = await res.json();
       return data;
@@ -115,6 +115,25 @@ export const AuthService = {
         body: JSON.stringify({ email, token, newPassword }),
       });
       const data = await res.json();
+      return data;
+    } catch (err) {
+      return { success: false, message: 'Network error. Please try again.' };
+    }
+  },
+
+  async updateProfile(profile) {
+    try {
+      const sessionData = await getSession();
+      const userId = sessionData?.user?.id;
+      const res = await fetch(`${API_URL}/update-profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: userId, ...profile }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await setSession({ user: data.user, token: sessionData?.token });
+      }
       return data;
     } catch (err) {
       return { success: false, message: 'Network error. Please try again.' };

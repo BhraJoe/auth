@@ -80,4 +80,31 @@ export const GLOBAL_STYLES = {
     color: COLORS.primary,
     fontWeight: '600',
   },
+  profileHeaderCard: {
+    backgroundColor: '#F5F6FA', // Light grey card background matching the design
+    borderRadius: 24,
+    padding: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0A1640',
+    marginBottom: 12,
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  menuRowCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    width: '100%',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E2E4EC',
+  }
 };

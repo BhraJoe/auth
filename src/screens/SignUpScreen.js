@@ -9,6 +9,7 @@ import Toast from 'react-native-toast-message';
 
 export default function SignUpScreen({ onNavigate }) {
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +22,7 @@ export default function SignUpScreen({ onNavigate }) {
 
     const validation = validateSignUp({
       fullName,
+      phone,
       email: email.trim(),
       password,
     });
@@ -31,9 +33,9 @@ export default function SignUpScreen({ onNavigate }) {
     }
 
     setIsSubmitting(true);
-    try {
-      const username = email.trim().split('@')[0];
-      const res = await AuthService.register(username, fullName, email, password);
+try {
+       const username = email.trim().split('@')[0];
+       const res = await AuthService.register(username, fullName, email, phone, password);
 
       if (res.success) {
         Toast.show({
@@ -68,6 +70,18 @@ export default function SignUpScreen({ onNavigate }) {
           placeholderTextColor={COLORS.textPlaceholder}
           value={fullName}
           onChangeText={setFullName}
+        />
+      </View>
+
+      <View style={styles.inputLayoutRow}>
+        <Feather name="phone" size={20} color={COLORS.textPlaceholder} style={styles.inputIcon} />
+        <TextInput
+          style={GLOBAL_STYLES.input}
+          placeholder="Phone number"
+          placeholderTextColor={COLORS.textPlaceholder}
+          keyboardType="phone-pad"
+          value={phone}
+          onChangeText={setPhone}
         />
       </View>
 

@@ -12,6 +12,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import ToastProvider, { Toast } from './src/components/ToastProvider';
 
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Non-serializable values were found in the navigation state']);
+
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import ForgetPasswordScreen from './src/screens/ForgetPasswordScreen';

@@ -9,7 +9,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
-export default function MainTabs({ onLogout }) {
+export default function MainTabs({ user, onLogout }) {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -68,7 +68,7 @@ export default function MainTabs({ onLogout }) {
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
-        initialParams={{ onLogout }}
+        initialParams={{ user, onLogout }}
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
