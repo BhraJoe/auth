@@ -1,5 +1,5 @@
 import { View } from 'react-native';
 
-export default function DashboardScreen() {
+export default function SearchScreen() {
   return <View style={{ flex: 1 }} />;
 }

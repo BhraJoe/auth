@@ -4,19 +4,18 @@ import { Feather } from '@expo/vector-icons';
 import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { AuthService } from '../services/authService';
 import { validateVerifyToken, validateResetPassword } from '../utils/validation';
+import Toast from 'react-native-toast-message';
 
 export default function VerifyTokenScreen({ onNavigate, email }) {
   const [token, setToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
 
   const handleVerifyToken = async () => {
     setError('');
-    setSuccess('');
 
     const validation = validateVerifyToken({ token });
     if (!validation.valid) {
@@ -29,7 +28,10 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
       const res = await AuthService.verifyToken(email, token);
       if (res.success) {
         setIsVerified(true);
-        setSuccess('Code verified! Enter a new password.');
+        Toast.show({
+          type: 'success',
+          text1: 'Code verified! Enter a new password.',
+        });
       } else {
         setError(res.message || 'Invalid or expired code.');
       }
@@ -42,7 +44,6 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
 
   const handleResetPassword = async () => {
     setError('');
-    setSuccess('');
 
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match.');
@@ -59,7 +60,10 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
     try {
       const res = await AuthService.resetPassword(email, token, newPassword);
       if (res.success) {
-        setSuccess(res.message);
+        Toast.show({
+          type: 'success',
+          text1: res.message,
+        });
         setTimeout(() => onNavigate('SIGN_IN'), 2000);
       } else {
         setError(res.message || 'Failed to reset password.');
@@ -134,13 +138,6 @@ export default function VerifyTokenScreen({ onNavigate, email }) {
         </View>
       ) : null}
 
-      {success ? (
-        <View style={styles.successBanner}>
-          <Feather name="check-circle" size={16} color="#10B981" style={{ marginRight: 8 }} />
-          <Text style={styles.successText}>{success}</Text>
-        </View>
-      ) : null}
-
       <TouchableOpacity
         style={[GLOBAL_STYLES.primaryButton, isSubmitting && { opacity: 0.8 }]}
         onPress={isVerified ? handleResetPassword : handleVerifyToken}
@@ -205,23 +202,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 13,
-    fontWeight: '500',
-    flex: 1,
-  },
-  successBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E6F8EB',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
-    width: '100%',
-  },
-  successText: {
-    color: '#10B981',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,

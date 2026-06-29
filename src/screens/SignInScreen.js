@@ -5,6 +5,7 @@ import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { SignInIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
 import { validateSignIn } from '../utils/validation';
+import Toast from 'react-native-toast-message';
 import Svg, { Path, Rect } from 'react-native-svg';
 
 const GoogleLogo = () => (
@@ -22,13 +23,11 @@ export default function SignInScreen({ onNavigate, onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const passwordInputRef = useRef(null);
 
   const handleLogin = async () => {
     setError('');
-    setSuccess('');
 
     const validation = validateSignIn({
       username: username.trim(),
@@ -44,7 +43,10 @@ export default function SignInScreen({ onNavigate, onLoginSuccess }) {
     try {
       const res = await AuthService.login(username, password);
       if (res.success) {
-        setSuccess('Login successful!!...');
+        Toast.show({
+          type: 'success',
+          text1: 'Login successful!',
+        });
         setTimeout(() => {
           onLoginSuccess(res.user, res.token);
         }, 800);
@@ -115,13 +117,6 @@ export default function SignInScreen({ onNavigate, onLoginSuccess }) {
         <View style={styles.errorBanner}>
           <Feather name="alert-circle" size={16} color="#EF4444" style={{ marginRight: 8 }} />
           <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : null}
-
-      {success ? (
-        <View style={styles.successBanner}>
-          <Feather name="check-circle" size={16} color="#10B981" style={{ marginRight: 8 }} />
-          <Text style={styles.successText}>{success}</Text>
         </View>
       ) : null}
 
@@ -215,23 +210,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 13,
-    fontWeight: '500',
-    flex: 1,
-  },
-  successBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E6F8EB',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
-    width: '100%',
-  },
-  successText: {
-    color: '#10B981',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,

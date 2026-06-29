@@ -9,12 +9,14 @@ import {
   Text,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { NavigationContainer } from '@react-navigation/native';
+import ToastProvider, { Toast } from './src/components/ToastProvider';
 
 import SignInScreen from './src/screens/SignInScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
 import ForgetPasswordScreen from './src/screens/ForgetPasswordScreen';
 import VerifyTokenScreen from './src/screens/VerifyTokenScreen';
-import DashboardScreen from './src/screens/DashboardScreen';
+import MainTabs from './src/navigation/MainTabs';
 import { AuthService } from './src/services/authService';
 import { COLORS } from './src/constants/theme';
 
@@ -53,6 +55,10 @@ export default function App() {
 
   const handleLogout = async () => {
     await AuthService.logout();
+    Toast.show({
+      type: 'success',
+      text1: 'Logged out successfully',
+    });
     setUser(null);
     setToken('');
     setIsAuthenticated(false);
@@ -70,7 +76,7 @@ export default function App() {
     }
 
     if (isAuthenticated) {
-      return <DashboardScreen user={user} onLogout={handleLogout} />;
+      return <MainTabs user={user} onLogout={handleLogout} />;
     }
 
     switch (currentScreen) {
@@ -89,16 +95,23 @@ export default function App() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
-          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-            {renderScreen()}
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+      <NavigationContainer>
+        <SafeAreaView style={styles.container}>
+          {!isLoading && !isAuthenticated ? (
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+              style={{ flex: 1 }}
+            >
+              <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+                {renderScreen()}
+              </ScrollView>
+            </KeyboardAvoidingView>
+          ) : (
+            renderScreen()
+          )}
+          <ToastProvider />
+        </SafeAreaView>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

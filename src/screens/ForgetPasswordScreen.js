@@ -5,16 +5,15 @@ import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { ForgotPasswordIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
 import { validateForgotPassword } from '../utils/validation';
+import Toast from 'react-native-toast-message';
 
 export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleResetPassword = async () => {
     setError('');
-    setSuccess('');
 
     const validation = validateForgotPassword({
       email: email.trim(),
@@ -29,7 +28,10 @@ export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
     try {
       const res = await AuthService.requestPasswordReset(email);
       if (res.success) {
-        setSuccess(res.message);
+        Toast.show({
+          type: 'success',
+          text1: res.message,
+        });
         onSendResetEmail(email);
         setTimeout(() => onNavigate('VERIFY_TOKEN'), 1500);
       } else {
@@ -68,13 +70,6 @@ export default function ForgetPasswordScreen({ onNavigate, onSendResetEmail }) {
         <View style={styles.errorBanner}>
           <Feather name="alert-circle" size={16} color="#EF4444" style={{ marginRight: 8 }} />
           <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : null}
-
-      {success ? (
-        <View style={styles.successBanner}>
-          <Feather name="check-circle" size={16} color="#10B981" style={{ marginRight: 8 }} />
-          <Text style={styles.successText}>{success}</Text>
         </View>
       ) : null}
 
@@ -142,23 +137,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 13,
-    fontWeight: '500',
-    flex: 1,
-  },
-  successBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E6F8EB',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
-    width: '100%',
-  },
-  successText: {
-    color: '#10B981',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,

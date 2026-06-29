@@ -5,6 +5,7 @@ import { COLORS, GLOBAL_STYLES } from '../constants/theme';
 import { SignUpIllustration } from '../components/Illustrations';
 import { AuthService } from '../services/authService';
 import { validateSignUp } from '../utils/validation';
+import Toast from 'react-native-toast-message';
 
 export default function SignUpScreen({ onNavigate }) {
   const [fullName, setFullName] = useState('');
@@ -12,13 +13,11 @@ export default function SignUpScreen({ onNavigate }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const passwordInputRef = useRef(null);
 
   const handleSignUp = async () => {
     setError('');
-    setSuccess('');
 
     const validation = validateSignUp({
       fullName,
@@ -37,7 +36,10 @@ export default function SignUpScreen({ onNavigate }) {
       const res = await AuthService.register(username, fullName, email, password);
 
       if (res.success) {
-        setSuccess(res.message);
+        Toast.show({
+          type: 'success',
+          text1: res.message,
+        });
         setTimeout(() => {
           onNavigate('SIGN_IN');
         }, 1500);
@@ -121,13 +123,6 @@ export default function SignUpScreen({ onNavigate }) {
         </View>
       ) : null}
 
-      {success ? (
-        <View style={styles.successBanner}>
-          <Feather name="check-circle" size={16} color="#10B981" style={{ marginRight: 8 }} />
-          <Text style={styles.successText}>{success}</Text>
-        </View>
-      ) : null}
-
       <TouchableOpacity 
         style={[GLOBAL_STYLES.primaryButton, isSubmitting && { opacity: 0.8 }]}
         onPress={handleSignUp}
@@ -201,23 +196,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#DC2626',
-    fontSize: 13,
-    fontWeight: '500',
-    flex: 1,
-  },
-  successBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E6F8EB',
-    borderColor: '#A7F3D0',
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 20,
-    width: '100%',
-  },
-  successText: {
-    color: '#10B981',
     fontSize: 13,
     fontWeight: '500',
     flex: 1,
